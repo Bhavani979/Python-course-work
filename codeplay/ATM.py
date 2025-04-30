@@ -8,7 +8,7 @@ def withdraw(amount):
 def depoist(amount):
    data["balance"]+=amount
    data["transaction"].append(f"{amount} depoist for your account .")
-   print(f"{data["balance"]} is dipoist your account")
+   print(f"{data["balance"]} is depoist your account")
 def Check_Balance():
     print(f"Your current balance is {data['balance']}")
   
