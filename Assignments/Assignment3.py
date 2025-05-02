@@ -23,24 +23,39 @@ def display_menu():
         "Count mentions of a user", "Remove repeated messages", "Alphabetical message list",
         "List all questions", "Reply count between two participants", "Check for deleted messages"
     ]
-    for i, action in enumerate(actions):
-        print(f"{i}. {action}")
+    for i in range(len(actions)):
+        print(f"{i}. {actions[i]}")
 
 def total_messages(conversation):
-    return sum(len(msgs) for msgs in conversation.values())
+    count = 0
+    for msgs in conversation.values():
+        count += len(msgs)
+    return count
 
 def unique_participants(conversation):
-    participants = set(conversation.keys())
+    participants = set()
+    for user in conversation:
+        participants.add(user)
     return f"{len(participants)} participants: {participants}"
 
 def total_word_count(conversation):
-    full_text = " ".join([" ".join(msgs) for msgs in conversation.values()])
-    return len(full_text.split())
+    count = 0
+    for msgs in conversation.values():
+        for msg in msgs:
+            words = msg.split()
+            count += len(words)
+    return count
 
 def average_words(conversation):
-    total_msgs = sum(len(msgs) for msgs in conversation.values())
-    total_words = total_word_count(conversation)
-    return total_words / total_msgs if total_msgs else 0
+    total_msgs = 0
+    total_words = 0
+    for msgs in conversation.values():
+        total_msgs += len(msgs)
+        for msg in msgs:
+            total_words += len(msg.split())
+    if total_msgs == 0:
+        return 0
+    return total_words / total_msgs
 
 def get_longest_message(conversation):
     longest = ""
@@ -51,78 +66,137 @@ def get_longest_message(conversation):
     return longest
 
 def most_messages_user(conversation):
-    return max(conversation, key=lambda k: len(conversation[k]))
+    max_msgs = 0
+    most_active = ""
+    for user in conversation:
+        count = len(conversation[user])
+        if count > max_msgs:
+            max_msgs = count
+            most_active = user
+    return most_active
 
 def messages_by_user(conversation):
     user = input("Enter participant name: ")
-    return len(conversation.get(user, []))
+    if user in conversation:
+        return len(conversation[user])
+    return 0
 
 def frequent_word_user(conversation):
     user = input("Enter participant name: ")
     if user not in conversation:
         return "User not found"
-    words = " ".join(conversation[user]).split()
-    freq = {}
-    for word in words:
-        freq[word] = freq.get(word, 0) + 1
-    return max(freq, key=freq.get)
+    all_words = {}
+    for msg in conversation[user]:
+        for word in msg.split():
+            if word in all_words:
+                all_words[word] += 1
+            else:
+                all_words[word] = 1
+    max_count = 0
+    most_common = ""
+    for word in all_words:
+        if all_words[word] > max_count:
+            max_count = all_words[word]
+            most_common = word
+    return most_common
 
 def first_last_user_msg(conversation):
     user = input("Enter participant name: ")
-    if user in conversation:
+    if user in conversation and conversation[user]:
         return f"First: {conversation[user][0]}, Last: {conversation[user][-1]}"
-    return "User not found"
+    return "User not found or no messages"
 
 def is_user_in_chat(conversation):
     user = input("Enter participant name: ")
-    return "Present" if user in conversation else "Absent"
+    if user in conversation:
+        return "Present"
+    return "Absent"
 
 def repeated_words(conversation):
-    full_text = " ".join([" ".join(msgs) for msgs in conversation.values()])
-    words = full_text.split()
-    freq = {}
-    for word in words:
-        freq[word] = freq.get(word, 0) + 1
-    return [word for word, count in freq.items() if count > 1]
+    all_words = {}
+    for msgs in conversation.values():
+        for msg in msgs:
+            for word in msg.split():
+                if word in all_words:
+                    all_words[word] += 1
+                else:
+                    all_words[word] = 1
+    result = []
+    for word in all_words:
+        if all_words[word] > 1:
+            result.append(word)
+    return result
 
 def user_with_longest_avg_msg(conversation):
-    best_user = ""
     max_avg = 0
-    for user, msgs in conversation.items():
-        avg_len = sum(len(msg) for msg in msgs) / len(msgs)
-        if avg_len > max_avg:
-            max_avg = avg_len
-            best_user = user
+    best_user = ""
+    for user in conversation:
+        total_length = 0
+        count = 0
+        for msg in conversation[user]:
+            total_length += len(msg)
+            count += 1
+        if count > 0:
+            avg_len = total_length / count
+            if avg_len > max_avg:
+                max_avg = avg_len
+                best_user = user
     return best_user
 
 def mentions_of_user(conversation):
     user = input("Enter user to search mentions of: ")
     count = 0
     for msgs in conversation.values():
-        count += sum(1 for msg in msgs if user in msg)
+        for msg in msgs:
+            if user in msg:
+                count += 1
     return f"{user} is mentioned in {count} messages"
 
 def remove_duplicate_msgs(conversation):
     for user in conversation:
-        conversation[user] = list(set(conversation[user]))
+        seen = set()
+        unique = []
+        for msg in conversation[user]:
+            if msg not in seen:
+                seen.add(msg)
+                unique.append(msg)
+        conversation[user] = unique
     return "Duplicates removed"
 
 def alphabetical_messages(conversation):
-    all_msgs = [msg for msgs in conversation.values() for msg in msgs]
-    return sorted(all_msgs)
+    all_msgs = []
+    for msgs in conversation.values():
+        for msg in msgs:
+            all_msgs.append(msg)
+    all_msgs.sort()
+    return all_msgs
 
 def extract_questions(conversation):
-    return [msg for msgs in conversation.values() for msg in msgs if "?" in msg]
+    questions = []
+    for msgs in conversation.values():
+        for msg in msgs:
+            if "?" in msg:
+                questions.append(msg)
+    return questions
 
 def reply_ratio(conversation):
     a, b = input("Enter two participants (e.g. Alice and Bob): ").split(" and ")
     a = a.strip()
     b = b.strip()
-    replies = sum(1 for msg in conversation.get(b, []) if a in msg)
-    return f"Replies from {b} to {a}: {replies}"
+    count = 0
+    if b in conversation:
+        for msg in conversation[b]:
+            if a in msg:
+                count += 1
+    return f"Replies from {b} to {a}: {count}"
 
 def deleted_messages(conversation):
-    return sum(1 for msgs in conversation.values() for msg in msgs if "deleted" in msg)
+    count = 0
+    for msgs in conversation.values():
+        for msg in msgs:
+            if "deleted" in msg:
+                count += 1
+    return count
 
 while True:
     print("="*45)
