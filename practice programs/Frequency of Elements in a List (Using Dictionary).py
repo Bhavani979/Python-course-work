@@ -7,3 +7,4 @@ for i in elements:
         frequency[i]=1
 print(frequency)
 
+
