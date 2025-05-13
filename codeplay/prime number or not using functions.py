@@ -8,4 +8,5 @@ if prime(n):
     print("prime number")
 else:
     print("not a prime number")
-  
+      
+      
