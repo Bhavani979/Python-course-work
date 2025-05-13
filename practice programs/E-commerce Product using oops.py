@@ -20,10 +20,10 @@ p1 = Product("Laptop", 50000, 10)
 p2 = Product("Phone", 20000, 5)
 # Applying discount
 p1.apply_discount()
-print(p1.price) # 47500 (5% discount applied)
+print(p1.price) 
 # Updating discount for all products
 Product.update_discount(10)
 p2.apply_discount()
-print(p2.price) # 18000 (10% discount applied)
+print(p2.price) 
 # Checking product availability
 print(Product.is_available(p1.quantity)) 
