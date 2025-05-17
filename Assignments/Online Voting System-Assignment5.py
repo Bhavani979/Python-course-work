@@ -139,7 +139,7 @@ e.add_voter(v2)
 e.add_voter(v3)
 
 e.cast_vote("V201", "C101")
-e.cast_vote("V202", "C102")
+e.cast_vote("V202", "C102")  
 e.cast_vote("V203", "C101")
 
 e.display_results()
